@@ -1,0 +1,258 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* SEEME Homestay verified brand palette tokens (rammed-earth sand, weathered ngói âm dương charcoal, terracotta hearth clay) */
+:root {
+  --p-bg: #f6f1e7;
+  --p-surface: #ebe3d5;
+  --p-ink: #221f1c;
+  --p-muted: #5c5750;
+  --p-accent: #8d3f28;
+  --p-accent-ink: #f6f1e7;
+  --p-action: #8d3f28;
+  --p-action-ink: #f6f1e7;
+  --p-inv-bg: #221f1c;
+  --p-inv-surface: #2e2b28;
+  --p-inv-ink: #f6f1e7;
+  --p-inv-muted: #c2bab0;
+  --p-inv-accent: #f6f1e7;
+  --p-inv-accent-ink: #221f1c;
+  --p-inv-action: #f6f1e7;
+  --p-inv-action-ink: #221f1c;
+  --font-display: "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-text: "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --display-weight: 800;
+  --display-tracking: -0.015em;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+section[id],
+div[id="dat-phong"] {
+  scroll-margin-top: calc(var(--nav, 72px) + 0.75rem);
+}
+
+body {
+  background-color: var(--p-bg);
+  color: var(--p-ink);
+  font-family: var(--font-text);
+  margin: 0;
+  overflow-x: clip;
+}
+
+/* Scoped Tailwind-like border & button baseline for .seeme-admin (zero specificity so Tailwind border utilities always win) */
+:where(.seeme-admin) :where(*, *::before, *::after) {
+  box-sizing: border-box;
+  border-width: 0;
+  border-style: solid;
+  border-color: rgba(34, 31, 28, 0.12);
+}
+
+:where(.seeme-admin) :where(button:not(.btn)) {
+  background-color: transparent;
+  background-image: none;
+  border-width: 0;
+  cursor: pointer;
+}
+
+.seeme-admin button:not(.btn):focus-visible {
+  outline: 2px solid var(--p-accent);
+  outline-offset: 2px;
+}
+
+.seeme-admin aside button.admin-nav-active {
+  background-color: #8d3f28 !important;
+  color: #f6f1e7 !important;
+  border: 0 !important;
+}
+
+.seeme-admin .admin-tab-active {
+  background-color: #221f1c !important;
+  color: #f6f1e7 !important;
+  border: 0 !important;
+}
+
+.seeme-admin .admin-tab-idle {
+  background-color: #ffffff !important;
+  color: #221f1c !important;
+  border: 1px solid rgba(34, 31, 28, 0.14) !important;
+}
+
+.seeme-admin aside button.admin-nav-idle {
+  background-color: transparent !important;
+  color: #d1c9be !important;
+  border: 0 !important;
+}
+
+.seeme-admin aside button.admin-nav-idle:hover {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  color: #f6f1e7 !important;
+}
+
+.seeme-admin aside button.admin-logout-btn {
+  background-color: transparent !important;
+  color: #f3b5a6 !important;
+  border: 0 !important;
+}
+
+.seeme-admin aside button.admin-logout-btn:hover {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+}
+
+/* Override any residual tailwind reset mismatches softly while preserving editorial system.css typography */
+.font-display {
+  font-family: var(--font-display);
+}
+
+/* Subtle architectural accents matching SEEME's rammed earth & dark clay tiles */
+.seeme-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.65rem;
+  border-radius: 4px;
+  background: var(--p-surface);
+  color: var(--p-accent);
+  border: 1px solid rgba(141, 63, 40, 0.22);
+}
+
+.seeme-card {
+  background: var(--p-bg);
+  border: 1px solid rgba(34, 31, 28, 0.12);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform 0.22s ease, border-color 0.22s ease;
+}
+
+.seeme-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(141, 63, 40, 0.45);
+}
+
+.seeme-img-wrap {
+  overflow: hidden;
+  background: var(--p-surface);
+}
+
+.seeme-img-wrap img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.seeme-card:hover .seeme-img-wrap img {
+  transform: scale(1.03);
+}
+
+/* Word-highlight fallback contrast when JS moment runs */
+[data-moment="word-highlight"] {
+  line-height: 1.35;
+}
+
+/* Form controls clarity across Safari/Chrome/Mobile */
+.seeme-input,
+.seeme-select,
+.seeme-textarea {
+  width: 100%;
+  font-family: var(--font-text);
+  font-size: 0.95rem;
+  line-height: 1.4;
+  color: var(--p-ink);
+  background-color: #ffffff;
+  border: 1px solid rgba(34, 31, 28, 0.24);
+  border-radius: 6px;
+  padding: 0.65rem 0.85rem;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.seeme-input:focus,
+.seeme-select:focus,
+.seeme-textarea:focus {
+  outline: none;
+  border-color: var(--p-accent);
+  box-shadow: 0 0 0 3px rgba(141, 63, 40, 0.14);
+}
+
+.seeme-stepper {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  background-color: #ffffff;
+  border: 1px solid rgba(34, 31, 28, 0.24);
+  border-radius: 6px;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.seeme-stepper:has(input:focus) {
+  border-color: var(--p-accent);
+  box-shadow: 0 0 0 3px rgba(141, 63, 40, 0.14);
+}
+
+.seeme-no-spinner::-webkit-outer-spin-button,
+.seeme-no-spinner::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.seeme-no-spinner {
+  -moz-appearance: textfield;
+}
+
+/* Custom Click-to-Pick Calendar DateRangePicker (immune to system.css .grid and browser button outset borders) */
+.seeme-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 2px;
+}
+
+:where(.seeme-cal-btn) {
+  border: 0;
+  background-color: transparent;
+  cursor: pointer;
+  padding: 0;
+}
+
+.seeme-cal-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+  height: 44px;
+  padding: 0 0.85rem;
+  background-color: #ffffff;
+  color: var(--p-ink);
+  border: 1px solid rgba(34, 31, 28, 0.24);
+  border-radius: 6px;
+  font-family: var(--font-text);
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.seeme-cal-trigger:hover {
+  border-color: rgba(34, 31, 28, 0.45);
+}
+
+.seeme-cal-trigger:focus-visible,
+.seeme-cal-trigger[aria-expanded="true"] {
+  outline: none;
+  border-color: var(--p-accent);
+  box-shadow: 0 0 0 3px rgba(141, 63, 40, 0.14);
+}

@@ -1,0 +1,25 @@
+# Dependencies
+/node_modules
+/.pnp
+.pnp.*
+
+# Next.js build output
+/.next/
+/out/
+
+# Environment secrets
+.env
+.env*.local
+
+# Local embedded PostgreSQL (PGlite) data
+/data/
+
+# Local tooling & verification artifacts
+/.taste-skill/
+/.verification-shots/
+/test-results/
+/playwright-report/
+*.log
+*.tsbuildinfo
+.DS_Store
+Thumbs.db
