@@ -8,6 +8,7 @@ import { getAllSiteSettings } from '@/lib/settings';
 import { PublicHeader } from '@/components/PublicHeader';
 import { PublicFooter } from '@/components/PublicFooter';
 import { AvailabilityWidget } from '@/components/AvailabilityWidget';
+import { DiningMenuSection } from '@/components/DiningMenuSection';
 import { GalleryWithLightbox, type GalleryItem } from '@/components/GalleryWithLightbox';
 import { getResponsiveImageAttrs } from '@/lib/media';
 
@@ -371,69 +372,13 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* SECTION 5: Experiences & Extra Services (from PostgreSQL) */}
+        {/* SECTION 5: Official Evening Menu, Dining Photos & Extra Services (from PostgreSQL) */}
         <section
           className="section bg-[#ebe3d5] py-14 lg:py-20"
           id="trai-nghiem"
           aria-labelledby="exp-h"
         >
-          <div className="wrap grid lg:grid-cols-12 gap-8 lg:gap-12 items-start">
-            <div className="lg:col-span-5 space-y-5">
-              <span className="text-xs uppercase tracking-[0.18em] text-[#8d3f28] font-semibold">
-                Trải nghiệm & Dịch vụ tại home
-              </span>
-              <h2
-                id="exp-h"
-                className="font-display text-2xl sm:text-3xl lg:text-[36px] font-extrabold text-[#221f1c] leading-snug tracking-tight"
-              >
-                Bếp lửa tối, lẩu bò nóng, gà nướng và trà Shan Tuyết
-              </h2>
-              <p className="text-[#3c342e] leading-relaxed">
-                Khách lưu trú có thể đặt trước các dịch vụ ăn uống, thuê xe máy hoặc chuẩn bị bếp
-                lửa ngay trong biểu mẫu đặt phòng để home chuẩn bị chu đáo từ trước khi bạn tới bản.
-              </p>
-              <div className="aspect-[16/10] rounded-xl overflow-hidden border border-black/10">
-                <img
-                  src="/assets/img/seeme/living-5.jpg"
-                  width={1638}
-                  height={2048}
-                  alt="Bộ ấm trà gốm nâu và khăn thổ cẩm Lô Lô tại không gian sinh hoạt chung SEEME"
-                  loading="lazy"
-                  decoding="async"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            </div>
-
-            <div className="lg:col-span-7 bg-[#f6f1e7] rounded-xl border border-black/10 p-6 sm:p-8">
-              <ul className="divide-y divide-black/10">
-                {services.map((svc) => (
-                  <li key={svc.id} className="py-4 first:pt-0 last:pb-0 flex gap-4 justify-between">
-                    <div className="space-y-1">
-                      <h3 className="font-display text-base sm:text-lg text-[#221f1c] font-bold">
-                        {svc.name}
-                      </h3>
-                      <p className="text-sm text-[#3c342e]">{svc.description}</p>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <span className="font-semibold text-[#8d3f28] block">
-                        {formatVnd(svc.price)}
-                      </span>
-                      <span className="text-xs text-[#5c5750]">/{svc.unit}</span>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-6 pt-5 border-t border-black/10 flex flex-wrap items-center justify-between gap-3">
-                <span className="text-xs text-[#5c5750]">
-                  Tổng chi phí được cộng minh bạch ngay khi bạn chọn phòng & dịch vụ.
-                </span>
-                <Link href="/book" className="btn btn--primary text-sm">
-                  Đặt phòng kèm dịch vụ
-                </Link>
-              </div>
-            </div>
-          </div>
+          <DiningMenuSection services={services} hotline={settings.brand.hotline} />
         </section>
 
         {/* SECTION 6: Gallery with Interactive Lightbox */}

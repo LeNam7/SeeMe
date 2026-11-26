@@ -153,6 +153,70 @@ const GH_DEMO_JS = `(() => {
     });
   }
 
+  // Dining menu category tabs + food photo / official menu lightbox
+  const diningWrap = document.querySelector('[data-dining-menu]');
+  if (diningWrap) {
+    const mTabs = Array.from(diningWrap.querySelectorAll('[data-menu-tab]'));
+    const mPanels = Array.from(diningWrap.querySelectorAll('[data-menu-panel]'));
+    const noteEl = diningWrap.querySelector('.text-xs.font-semibold.text-\\[\\#8d3f28\\]');
+    const notes = {
+      LAU: 'Nồi tối thiểu 2 người',
+      BBQ: 'Chuẩn bị than hồng tại sân',
+      SIDE: 'Đặc sản địa phương Hà Giang',
+    };
+    mTabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        const id = tab.getAttribute('data-menu-tab');
+        mTabs.forEach((t) => {
+          const active = t === tab;
+          t.setAttribute('aria-selected', String(active));
+          t.className = 'inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold transition border ' +
+            (active ? 'bg-[#221f1c] text-[#f6f1e7] border-[#221f1c]' : 'bg-white text-[#221f1c] border-black/15 hover:border-black/35');
+          const badge = t.querySelector('span:last-child');
+          if (badge) {
+            badge.className = 'text-[11px] px-1.5 py-0.5 rounded-full ' +
+              (active ? 'bg-white/15 text-[#f6f1e7]' : 'bg-[#ebe3d5] text-[#5c5750]');
+          }
+        });
+        mPanels.forEach((p) => {
+          const show = p.getAttribute('data-menu-panel') === id;
+          p.classList.toggle('hidden', !show);
+          p.classList.toggle('block', show);
+        });
+        if (noteEl && notes[id]) noteEl.textContent = notes[id];
+      });
+    });
+
+    function openDiningLightbox(src, alt) {
+      const overlay = document.createElement('div');
+      overlay.className = 'fixed inset-0 z-50 bg-[#151311]/95 flex flex-col items-center justify-center p-4 sm:p-8';
+      overlay.innerHTML =
+        '<button type="button" aria-label="Đóng" style="position:absolute;top:20px;right:20px;background:rgba(255,255,255,0.14);color:#fff;border:0;border-radius:999px;width:40px;height:40px;font-size:22px;cursor:pointer;">&times;</button>' +
+        '<img src="' + src + '" alt="' + (alt || '').replace(/"/g, '&quot;') + '" style="max-height:82vh;max-width:92vw;object-fit:contain;border-radius:8px;" />' +
+        '<p style="color:#e8e1d7;font-size:13px;margin-top:12px;text-align:center;max-width:640px;">' + (alt || '') + '</p>';
+      const close = () => { overlay.remove(); document.removeEventListener('keydown', onEsc); };
+      const onEsc = (ev) => { if (ev.key === 'Escape') close(); };
+      overlay.addEventListener('click', close);
+      document.addEventListener('keydown', onEsc);
+      document.body.appendChild(overlay);
+    }
+
+    diningWrap.querySelectorAll('button[aria-label^="Phóng to ảnh:"]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const img = btn.querySelector('img');
+        if (img) openDiningLightbox(img.src, img.alt);
+      });
+    });
+
+    diningWrap.querySelectorAll('button').forEach((btn) => {
+      if (btn.textContent && btn.textContent.includes('Xem ảnh menu gốc')) {
+        btn.addEventListener('click', () => {
+          openDiningLightbox('./assets/img/seeme/food-menu-official.jpg', 'Ảnh thực đơn tối chính thức SEEME Homestay');
+        });
+      }
+    });
+  }
+
   // Room detail page thumbnail switcher + lightbox
   const mainRoomBtn = document.querySelector('button[aria-label^="Xem toàn màn hình ảnh"]');
   if (mainRoomBtn) {
