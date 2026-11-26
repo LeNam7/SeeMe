@@ -965,6 +965,153 @@ export async function performAdminBookingAction(params: {
   return updated.booking;
 }
 
+export async function confirmGuestBookingPayment(bookingCode: string) {
+  await ensureDbSchema();
+  const cleanCode = bookingCode.trim().toUpperCase();
+  if (!cleanCode) {
+    throw new BookingError('Thiếu mã đơn đặt phòng.', 400, 'INVALID_CODE');
+  }
+
+  const settings = await getAllSiteSettings();
+
+  const updated = await withSerializedBookingTx(async (tx) => {
+    await expireStaleHolds(tx);
+    const [booking] = await tx
+      .select()
+      .from(schema.bookings)
+      .where(eq(schema.bookings.bookingCode, cleanCode));
+
+    if (!booking) {
+      throw new BookingError('Không tìm thấy mã đơn đặt phòng.', 404, 'BOOKING_NOT_FOUND');
+    }
+
+    if (['REJECTED', 'CANCELLED', 'EXPIRED'].includes(booking.status)) {
+      throw new BookingError(
+        'Đơn đặt phòng này đã hủy hoặc hết thời hạn giữ chỗ.',
+        409,
+        'BOOKING_CLOSED'
+      );
+    }
+
+    const items = await tx
+      .select()
+      .from(schema.bookingItems)
+      .where(eq(schema.bookingItems.bookingId, booking.id));
+    const roomsSummary = items.map((i) => `${i.roomNameSnapshot} x${i.quantity}`).join(', ');
+
+    if (booking.paymentStatus === 'PAID' && booking.status === 'CONFIRMED') {
+      return { booking, roomsSummary, alreadyPaid: true };
+    }
+
+    const now = new Date();
+    const cleanRef = `VIETQR-${booking.bookingCode}`;
+
+    const [existingPay] = await tx
+      .select()
+      .from(schema.payments)
+      .where(eq(schema.payments.bookingId, booking.id));
+
+    if (existingPay) {
+      await tx
+        .update(schema.payments)
+        .set({
+          status: 'PAID',
+          provider: 'VIETQR',
+          transactionRef: existingPay.transactionRef || cleanRef,
+          paidAt: now,
+          verifiedBy: 'GUEST_CONFIRMED',
+          updatedAt: now,
+        })
+        .where(eq(schema.payments.id, existingPay.id));
+    } else {
+      const qr = await generateVietQrForBooking({
+        bookingCode: booking.bookingCode,
+        amount: booking.totalAmount,
+        paymentSettings: settings.payment,
+      });
+      await tx.insert(schema.payments).values({
+        bookingId: booking.id,
+        provider: 'VIETQR',
+        transactionRef: cleanRef,
+        amount: booking.totalAmount,
+        currency: 'VND',
+        status: 'PAID',
+        qrImageUrl: qr.qrImageUrl,
+        qrPayload: qr.qrPayload,
+        bankBin: qr.bankBin,
+        bankName: qr.bankName,
+        accountNo: qr.accountNo,
+        accountName: qr.accountName,
+        transferContent: qr.transferContent,
+        expiresAt: now,
+        paidAt: now,
+        verifiedBy: 'GUEST_CONFIRMED',
+      });
+    }
+
+    const [row] = await tx
+      .update(schema.bookings)
+      .set({
+        status: 'CONFIRMED',
+        paymentStatus: 'PAID',
+        confirmedAt: now,
+        holdExpiresAt: null,
+        updatedAt: now,
+      })
+      .where(eq(schema.bookings.id, booking.id))
+      .returning();
+
+    const [cust] = await tx
+      .select()
+      .from(schema.customers)
+      .where(eq(schema.customers.id, booking.customerId));
+    if (cust) {
+      await tx
+        .update(schema.customers)
+        .set({ totalSpent: cust.totalSpent + booking.totalAmount, updatedAt: now })
+        .where(eq(schema.customers.id, cust.id));
+    }
+
+    await tx.insert(schema.bookingStatusHistory).values({
+      bookingId: booking.id,
+      fromStatus: booking.status,
+      toStatus: 'CONFIRMED',
+      actorType: 'GUEST',
+      actorName: booking.customerName,
+      note: 'Khách hàng xác nhận đã hoàn tất thanh toán VietQR — phòng đã được giữ cố định trong CSDL.',
+    });
+
+    return { booking: row, roomsSummary, alreadyPaid: false };
+  });
+
+  if (!updated.alreadyPaid) {
+    await dispatchZaloNotification({
+      bookingId: updated.booking.id,
+      bookingCode: updated.booking.bookingCode,
+      eventType: 'PAYMENT_CONFIRMED_GUEST',
+      customerName: updated.booking.customerName,
+      customerPhone: updated.booking.customerPhone,
+      checkInDate: updated.booking.checkInDate,
+      checkOutDate: updated.booking.checkOutDate,
+      totalAmount: updated.booking.totalAmount,
+      roomsSummary: updated.roomsSummary,
+    });
+    await dispatchZaloNotification({
+      bookingId: updated.booking.id,
+      bookingCode: updated.booking.bookingCode,
+      eventType: 'PAYMENT_CONFIRMED_OWNER',
+      customerName: updated.booking.customerName,
+      customerPhone: updated.booking.customerPhone,
+      checkInDate: updated.booking.checkInDate,
+      checkOutDate: updated.booking.checkOutDate,
+      totalAmount: updated.booking.totalAmount,
+      roomsSummary: updated.roomsSummary,
+    });
+  }
+
+  return updated.booking;
+}
+
 export async function processPaymentWebhookEvent(params: {
   transactionRef: string;
   bookingCode: string;

@@ -127,6 +127,8 @@ export function BookingStatusView({ initialData }: { initialData: BookingDetailP
   const [data, setData] = useState(initialData);
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [countdownText, setCountdownText] = useState<string>('');
+  const [confirmingPayment, setConfirmingPayment] = useState(false);
+  const [confirmError, setConfirmError] = useState<string | null>(null);
 
   const code = data.booking.bookingCode;
 
@@ -178,6 +180,27 @@ export function BookingStatusView({ initialData }: { initialData: BookingDetailP
       setTimeout(() => setCopiedField(null), 1800);
     } catch {
       // ignore
+    }
+  }
+
+  async function handleConfirmPaid() {
+    setConfirmingPayment(true);
+    setConfirmError(null);
+    try {
+      const res = await fetch(
+        `/api/bookings/${encodeURIComponent(data.booking.bookingCode)}/confirm-payment`,
+        { method: 'POST' }
+      );
+      const json = await res.json();
+      if (!res.ok) {
+        setConfirmError(json.error || 'Không thể xác nhận thanh toán lúc này.');
+      } else {
+        await refresh();
+      }
+    } catch {
+      setConfirmError('Lỗi kết nối khi xác nhận thanh toán, vui lòng thử lại.');
+    } finally {
+      setConfirmingPayment(false);
     }
   }
 
@@ -368,11 +391,27 @@ export function BookingStatusView({ initialData }: { initialData: BookingDetailP
                 </button>
               </div>
 
-              <p className="text-xs text-[#5c5750] leading-relaxed pt-1">
-                Hệ thống chỉ chuyển trạng thái sang <strong>Đã xác nhận</strong> sau khi cổng đối
-                soát ngân hàng ghi nhận đúng số tiền và nội dung chuyển khoản, hoặc khi chủ
-                homestay đối soát bút toán thực tế. Trang tự động kiểm tra lại mỗi 8 giây.
-              </p>
+              <div className="pt-2 space-y-2.5">
+                {confirmError && (
+                  <div className="p-2.5 rounded-lg bg-red-50 border border-red-200 text-xs text-red-800">
+                    {confirmError}
+                  </div>
+                )}
+                <button
+                  type="button"
+                  disabled={confirmingPayment}
+                  onClick={() => void handleConfirmPaid()}
+                  className="btn btn--primary w-full justify-center py-3 text-sm font-bold inline-flex items-center gap-2"
+                >
+                  <CheckCircle2 className="w-4 h-4" />
+                  {confirmingPayment ? 'Đang xác nhận thanh toán...' : 'Xác nhận đã thanh toán'}
+                </button>
+                <p className="text-xs text-[#5c5750] leading-relaxed">
+                  Sau khi quét mã và chuyển khoản thành công, bấm{' '}
+                  <strong>Xác nhận đã thanh toán</strong> để hoàn tất giữ phòng cố định ngay trên hệ
+                  thống.
+                </p>
+              </div>
             </div>
           </div>
         </div>

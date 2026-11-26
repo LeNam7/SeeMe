@@ -106,7 +106,7 @@ const BOOKING_STATUS_META: Record<string, { label: string; badgeClass: string }>
     badgeClass: 'bg-amber-50 text-amber-900 border border-amber-200',
   },
   CONFIRMED: {
-    label: 'Đã hoàn tất',
+    label: 'Đã thanh toán',
     badgeClass: 'bg-emerald-50 text-emerald-900 border border-emerald-200',
   },
   REJECTED: {
