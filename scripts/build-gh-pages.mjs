@@ -103,6 +103,35 @@ const GH_DEMO_JS = `(() => {
     });
   }
 
+  // Official SEEME Cinema Film play overlay + chapters + fullscreen
+  const filmWrap = document.querySelector('[data-seeme-film]');
+  if (filmWrap) {
+    const vid = filmWrap.querySelector('[data-film-video]');
+    const overlay = filmWrap.querySelector('[data-film-overlay]');
+    const fsBtn = filmWrap.querySelector('[data-film-fullscreen]');
+    const chapBtns = Array.from(filmWrap.querySelectorAll('[data-film-chapter]'));
+    const startFilm = (sec) => {
+      if (!vid) return;
+      if (typeof sec === 'number') vid.currentTime = sec;
+      vid.controls = true;
+      vid.classList.remove('object-cover');
+      vid.classList.add('object-contain');
+      if (overlay) overlay.style.display = 'none';
+      const p = vid.play();
+      if (p && p.catch) p.catch(() => { vid.muted = true; vid.play().catch(() => {}); });
+    };
+    if (overlay) overlay.addEventListener('click', () => startFilm(0));
+    chapBtns.forEach((b) => {
+      b.addEventListener('click', () => startFilm(Number(b.getAttribute('data-film-chapter') || 0)));
+    });
+    if (fsBtn && vid) {
+      fsBtn.addEventListener('click', () => {
+        startFilm();
+        if (vid.requestFullscreen) vid.requestFullscreen().catch(() => {});
+      });
+    }
+  }
+
   // Homepage Gallery filter tabs + Lightbox
   const galSection = document.getElementById('bo-suu-tap');
   if (galSection) {
@@ -306,8 +335,8 @@ function rewriteHtml(html, depth) {
   out = out.replace(/\/_next\/static\/css\//g, `${prefix}css/`);
   out = out.replace(/href="\/icon\.png[^"]*"/g, `href="${prefix}icon.png"`);
 
-  // 3. Rewrite /assets/... URLs (src, href, srcset, CSS url)
-  out = out.replace(/(src|href)="\/assets\//g, `$1="${prefix}assets/`);
+  // 3. Rewrite /assets/... URLs (src, href, poster, srcset, CSS url)
+  out = out.replace(/(src|href|poster)="\/assets\//g, `$1="${prefix}assets/`);
   out = out.replace(/srcSet="\/assets\//gi, `srcset="${prefix}assets/`);
 
   // 4. Rewrite internal page links cleanly to relative paths

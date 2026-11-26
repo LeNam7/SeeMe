@@ -9,6 +9,7 @@ import { PublicFooter } from '@/components/PublicFooter';
 import { AvailabilityWidget } from '@/components/AvailabilityWidget';
 import { DiningMenuSection } from '@/components/DiningMenuSection';
 import { GalleryWithLightbox, type GalleryItem } from '@/components/GalleryWithLightbox';
+import { SeemeFilmSection } from '@/components/SeemeFilmSection';
 import { getResponsiveImageAttrs } from '@/lib/media';
 
 export const dynamic = 'force-dynamic';
@@ -256,6 +257,9 @@ export default async function HomePage() {
             </div>
           </div>
         </section>
+
+        {/* SECTION 2B: Official Cinematic Brand Film */}
+        <SeemeFilmSection />
 
         {/* SECTION 3: The Space — Non-uniform Architectural Showcase */}
         <section
