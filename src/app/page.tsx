@@ -227,11 +227,19 @@ export default async function HomePage() {
                 </p>
                 <div className="grid grid-cols-3 gap-4 pt-4 border-t border-black/10 text-sm">
                   <div>
-                    <strong className="block font-display text-2xl font-semibold text-[#8d3f28] tabular-nums">04</strong>
+                    <strong className="block font-display text-2xl font-semibold text-[#8d3f28] tabular-nums">
+                      {String(roomsWithPrimary.length).padStart(2, '0')}
+                    </strong>
                     <span className="text-xs text-[#5c5750]">Hạng phòng khép kín</span>
                   </div>
                   <div>
-                    <strong className="block font-display text-2xl font-semibold text-[#8d3f28] tabular-nums">2 – 6</strong>
+                    <strong className="block font-display text-2xl font-semibold text-[#8d3f28] tabular-nums">
+                      {roomsWithPrimary.length > 0
+                        ? `${Math.min(...roomsWithPrimary.map((r) => r.standardCapacity))} – ${Math.max(
+                            ...roomsWithPrimary.map((r) => r.maxCapacity)
+                          )}`
+                        : '2 – 6'}
+                    </strong>
                     <span className="text-xs text-[#5c5750]">Khách / phòng</span>
                   </div>
                   <div>

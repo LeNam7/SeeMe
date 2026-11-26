@@ -105,6 +105,8 @@ export interface AdminRoomRecord {
   totalUnits: number;
   isPriceConfigured: boolean;
   isActive: boolean;
+  sortOrder?: number;
+  bookingCount?: number;
   images: {
     id?: number;
     url: string;
