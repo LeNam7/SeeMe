@@ -43,11 +43,11 @@ export function PublicFooter({ brand }: { brand: BrandSettingsConfig }) {
           </div>
 
           <div className="lg:col-span-6">
-            <div className="aspect-[16/10] overflow-hidden rounded-lg border border-white/10">
+            <div className="aspect-[4/3] overflow-hidden rounded-lg border border-white/10">
               <img
                 src="/assets/img/seeme/space-1.jpg"
-                width={1200}
-                height={900}
+                width={2048}
+                height={1536}
                 alt="Toàn cảnh SEEME Homestay lên đèn buổi tối giữa mái ngói âm dương thôn Lô Lô Chải"
                 loading="lazy"
                 decoding="async"

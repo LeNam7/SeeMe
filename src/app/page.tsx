@@ -285,7 +285,7 @@ export default async function HomePage() {
             <div className="grid lg:grid-cols-12 gap-6 items-start">
               <div className="lg:col-span-7 space-y-4">
                 <div
-                  className="aspect-[16/10] rounded-xl overflow-hidden border border-black/10 bg-[#dcd0bc]"
+                  className="aspect-[4/3] rounded-xl overflow-hidden border border-black/10 bg-[#dcd0bc]"
                   data-moment="picture-develops"
                 >
                   <img
