@@ -109,6 +109,33 @@ body {
   color: #ffffff !important;
 }
 
+.seeme-admin .admin-mobile-icon-btn {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: #f6f1e7 !important;
+  border: 0 !important;
+}
+
+.seeme-admin .admin-mobile-icon-btn:hover {
+  background-color: rgba(255, 255, 255, 0.18) !important;
+}
+
+.seeme-admin .admin-bottom-active {
+  background-color: #8d3f28 !important;
+  color: #f6f1e7 !important;
+  border: 0 !important;
+}
+
+.seeme-admin .admin-bottom-idle {
+  background-color: transparent !important;
+  color: #b8afa4 !important;
+  border: 0 !important;
+}
+
+.seeme-admin .admin-bottom-idle:hover {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  color: #f6f1e7 !important;
+}
+
 /* Override any residual tailwind reset mismatches softly while preserving editorial system.css typography */
 .font-display {
   font-family: var(--font-display);

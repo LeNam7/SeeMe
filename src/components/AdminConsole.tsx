@@ -18,6 +18,7 @@ import {
   MessageCircle,
   ArrowRight,
   Search,
+  Menu,
   X,
 } from 'lucide-react';
 import { BrandMark } from './BrandMark';
@@ -165,6 +166,7 @@ export function AdminConsole({
   const [loggingIn, setLoggingIn] = useState(false);
 
   const [activeTab, setActiveTab] = useState<TabId>('dashboard');
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState<BookingFilterId>('ALL');
   const [dashboardFilter, setDashboardFilter] = useState<'ACTION_REQUIRED' | 'RECENT'>(
     'ACTION_REQUIRED'
@@ -394,7 +396,10 @@ export function AdminConsole({
       <button
         key={t.id}
         type="button"
-        onClick={() => setActiveTab(t.id)}
+        onClick={() => {
+          setActiveTab(t.id);
+          setMobileNavOpen(false);
+        }}
         className={`w-full min-h-[44px] flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-[14px] transition ${
           isActive ? 'admin-nav-active font-medium' : 'admin-nav-idle'
         }`}
@@ -409,6 +414,14 @@ export function AdminConsole({
       </button>
     );
   }
+
+  const mobileBottomTabs: { id: TabId; shortLabel: string; icon: React.ComponentType<{ className?: string }> }[] = [
+    { id: 'dashboard', shortLabel: 'Tổng quan', icon: LayoutDashboard },
+    { id: 'calendar', shortLabel: 'Lịch phòng', icon: CalendarRange },
+    { id: 'bookings', shortLabel: 'Đơn đặt', icon: ClipboardList },
+    { id: 'rooms', shortLabel: 'Phòng', icon: BedDouble },
+  ];
+  const isExtraTabActive = activeTab === 'services' || activeTab === 'settings';
 
   return (
     <div className="seeme-admin min-h-screen bg-[#f6f1e7] text-[#221f1c] flex flex-col lg:flex-row">
@@ -460,71 +473,140 @@ export function AdminConsole({
         </div>
       </aside>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0 pb-16 lg:pb-10">
-        {/* Top Bar */}
-        <header className="bg-white/95 backdrop-blur-sm border-b border-black/10 px-3 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-2 sticky top-0 z-30">
-          <div className="min-w-0 shrink-0">
-            <div className="flex items-center gap-2 lg:hidden">
-              <span className="font-display font-medium text-sm sm:text-lg text-[#221f1c] whitespace-nowrap">
-                SEEME Admin
-              </span>
+      {/* Mobile Slide-Over Dark Sidebar Drawer */}
+      {mobileNavOpen && (
+        <div
+          className="fixed inset-0 z-50 lg:hidden bg-black/55 backdrop-blur-[1px] flex"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Menu quản trị di động"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setMobileNavOpen(false);
+          }}
+        >
+          <aside className="w-72 max-w-[82vw] h-full bg-[#221f1c] text-[#f6f1e7] p-5 flex flex-col justify-between shadow-2xl overflow-y-auto">
+            <div className="space-y-6">
+              <div className="pb-4 border-b border-white/10 flex items-start justify-between gap-2">
+                <div>
+                  <BrandMark inverted compact />
+                  <p className="text-[11px] text-[#a8a096] mt-2">Quản trị vận hành · Lô Lô Chải</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setMobileNavOpen(false)}
+                  className="admin-mobile-icon-btn w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
+                  aria-label="Đóng menu quản trị"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="space-y-5">
+                <div>
+                  <p className="text-[11px] uppercase tracking-[0.08em] text-[#9e968c] px-3.5 mb-2 font-semibold">
+                    Vận hành
+                  </p>
+                  <nav className="space-y-1">{operationTabs.map(renderNavButton)}</nav>
+                </div>
+
+                <div>
+                  <p className="text-[11px] uppercase tracking-[0.08em] text-[#9e968c] px-3.5 mb-2 font-semibold">
+                    Homestay
+                  </p>
+                  <nav className="space-y-1">{homestayTabs.map(renderNavButton)}</nav>
+                </div>
+              </div>
             </div>
-            <h1 className="hidden lg:block font-display text-2xl text-[#221f1c] leading-tight">
-              {activeTabMeta.label}
-            </h1>
-            <p className="hidden sm:block text-xs text-[#5c5750] mt-0.5 truncate">
-              {activeTabMeta.subtitle}
-            </p>
+
+            <div className="space-y-1 pt-4 border-t border-white/10 text-xs">
+              <Link
+                href="/"
+                onClick={() => setMobileNavOpen(false)}
+                className="min-h-[42px] flex items-center justify-between px-3.5 py-2 rounded-lg hover:bg-white/[0.08] text-[#d1c9be] hover:text-[#f6f1e7] transition"
+              >
+                <span>Xem trang khách hàng</span>
+                <ExternalLink className="w-4 h-4" />
+              </Link>
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileNavOpen(false);
+                  void handleLogout();
+                }}
+                className="admin-logout-btn w-full min-h-[42px] flex items-center gap-2.5 px-3.5 py-2 rounded-lg text-left transition"
+              >
+                <LogOut className="w-4 h-4 shrink-0" />
+                <span>Đăng xuất ({session.username})</span>
+              </button>
+            </div>
+          </aside>
+        </div>
+      )}
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col min-w-0 pb-24 lg:pb-10">
+        {/* Mobile Dark Admin App Bar */}
+        <header className="lg:hidden bg-[#221f1c] text-[#f6f1e7] border-b border-white/10 px-3.5 py-3 flex items-center justify-between gap-2.5 sticky top-0 z-30 shadow-sm">
+          <div className="flex items-center gap-3 min-w-0">
+            <button
+              type="button"
+              onClick={() => setMobileNavOpen(true)}
+              className="admin-mobile-icon-btn w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
+              aria-label="Mở menu quản trị"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+            <div className="min-w-0">
+              <h1 className="font-display text-base font-extrabold text-[#f6f1e7] leading-tight truncate">
+                {activeTabMeta.label}
+              </h1>
+              <p className="text-[11px] text-[#c2bab0] leading-tight truncate mt-0.5">
+                SEEME Quản trị · {activeTabMeta.subtitle}
+              </p>
+            </div>
           </div>
 
-          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+          <div className="flex items-center gap-1.5 shrink-0">
             <button
               type="button"
               onClick={() => void loadAllData()}
               disabled={refreshing}
-              className="w-8 h-8 sm:w-auto sm:min-h-[38px] inline-flex items-center justify-center gap-1.5 sm:px-3 sm:py-1.5 rounded-lg border border-black/15 bg-white text-xs font-medium text-[#221f1c] hover:bg-[#faf7f1] transition"
+              className="admin-mobile-icon-btn w-9 h-9 rounded-lg flex items-center justify-center"
               aria-label="Làm mới dữ liệu"
             >
-              <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin' : ''}`} />
-              <span className="hidden sm:inline">{refreshing ? 'Đang tải...' : 'Làm mới'}</span>
+              <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
             </button>
-            <div className="flex items-center gap-1 lg:hidden">
-              <Link
-                href="/"
-                className="h-8 sm:h-9 inline-flex items-center px-2 sm:px-2.5 rounded-lg border border-black/15 bg-white text-[11px] sm:text-xs font-semibold text-[#221f1c] hover:bg-[#faf7f1] whitespace-nowrap"
-              >
-                Trang khách
-              </Link>
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="h-8 sm:h-9 inline-flex items-center px-2 sm:px-2.5 rounded-lg border border-black/15 bg-white text-[11px] sm:text-xs font-semibold text-[#8d3f28] hover:bg-[#faf7f1] whitespace-nowrap"
-              >
-                Thoát
-              </button>
-            </div>
+            <Link
+              href="/"
+              className="admin-mobile-icon-btn w-9 h-9 rounded-lg flex items-center justify-center"
+              aria-label="Xem trang khách hàng"
+              title="Xem trang khách hàng"
+            >
+              <ExternalLink className="w-4 h-4" />
+            </Link>
           </div>
         </header>
 
-        {/* Horizontal Mobile Quick Tabs */}
-        <div className="lg:hidden bg-[#ebe3d5] border-b border-black/10 px-3 py-2 flex gap-1.5 overflow-x-auto">
-          {NAV_TABS.map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              onClick={() => setActiveTab(t.id)}
-              className={`min-h-[38px] px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition ${
-                activeTab === t.id ? 'admin-tab-active' : 'admin-tab-idle'
-              }`}
-            >
-              {t.label}
-              {t.id === 'bookings' && kpis.awaitingPaymentCount > 0
-                ? ` (${kpis.awaitingPaymentCount})`
-                : ''}
-            </button>
-          ))}
-        </div>
+        {/* Desktop Top Bar */}
+        <header className="hidden lg:flex bg-white/95 backdrop-blur-sm border-b border-black/10 px-8 py-3.5 items-center justify-between gap-3 sticky top-0 z-30">
+          <div className="min-w-0">
+            <h1 className="font-display text-2xl font-extrabold text-[#221f1c] leading-tight">
+              {activeTabMeta.label}
+            </h1>
+            <p className="text-xs text-[#5c5750] mt-0.5 truncate">{activeTabMeta.subtitle}</p>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => void loadAllData()}
+            disabled={refreshing}
+            className="min-h-[38px] inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-lg border border-black/15 bg-white text-xs font-semibold text-[#221f1c] hover:bg-[#faf7f1] transition shrink-0"
+            aria-label="Làm mới dữ liệu"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin' : ''}`} />
+            <span>{refreshing ? 'Đang tải...' : 'Làm mới'}</span>
+          </button>
+        </header>
 
         <main className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-6xl w-full mx-auto">
           {actionMsg && (
@@ -1016,6 +1098,47 @@ export function AdminConsole({
           )}
         </main>
       </div>
+
+      {/* Native-Style Sticky Bottom Navigation Bar on Mobile */}
+      <nav
+        className="lg:hidden fixed bottom-0 inset-x-0 z-30 bg-[#221f1c] border-t border-white/10 px-1.5 py-1.5 shadow-[0_-4px_20px_rgba(0,0,0,0.2)]"
+        aria-label="Thanh điều hướng quản trị di động"
+      >
+        <div className="flex items-stretch gap-1 max-w-lg mx-auto">
+          {mobileBottomTabs.map((t) => {
+            const Icon = t.icon;
+            const isActive = activeTab === t.id;
+            return (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => setActiveTab(t.id)}
+                className={`relative flex-1 min-w-0 flex flex-col items-center justify-center py-1.5 px-1 rounded-lg text-[10.5px] font-semibold transition ${
+                  isActive ? 'admin-bottom-active' : 'admin-bottom-idle'
+                }`}
+              >
+                <Icon className="w-[18px] h-[18px] mb-0.5 shrink-0" />
+                <span className="truncate max-w-full">{t.shortLabel}</span>
+                {t.id === 'bookings' && kpis.awaitingPaymentCount > 0 && (
+                  <span className="absolute top-1 right-2 min-w-[16px] h-4 px-1 rounded-full bg-amber-400 text-[#221f1c] text-[10px] font-bold flex items-center justify-center tabular-nums">
+                    {kpis.awaitingPaymentCount}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+          <button
+            type="button"
+            onClick={() => setMobileNavOpen(true)}
+            className={`flex-1 min-w-0 flex flex-col items-center justify-center py-1.5 px-1 rounded-lg text-[10.5px] font-semibold transition ${
+              isExtraTabActive || mobileNavOpen ? 'admin-bottom-active' : 'admin-bottom-idle'
+            }`}
+          >
+            <Menu className="w-[18px] h-[18px] mb-0.5 shrink-0" />
+            <span>Thêm</span>
+          </button>
+        </div>
+      </nav>
 
       {/* Booking Detail & Action Modal */}
       {selectedBooking && (
