@@ -104,26 +104,7 @@ export default async function RoomDetailPage({
           {/* Header Summary */}
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 pb-6 border-b border-black/10">
             <div className="space-y-2">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="seeme-badge">Chi tiết hạng phòng SEEME</span>
-                {previewDates[0] && (
-                  <span
-                    className={`text-xs font-bold px-2.5 py-0.5 rounded-full border ${
-                      previewDates[0].remainingUnits > 0
-                        ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                        : previewDates[0].status === 'PENDING'
-                          ? 'bg-amber-50 text-amber-900 border-amber-200'
-                          : 'bg-neutral-100 text-neutral-700 border-black/15'
-                    }`}
-                  >
-                    {previewDates[0].remainingUnits > 0
-                      ? 'Còn trống hôm nay'
-                      : previewDates[0].status === 'PENDING'
-                        ? 'Đang giữ phòng hôm nay'
-                        : 'Kín phòng hôm nay'}
-                  </span>
-                )}
-              </div>
+              <span className="seeme-badge">Chi tiết hạng phòng SEEME</span>
               <h1 className="font-display text-3xl lg:text-4xl font-extrabold text-[#221f1c]">
                 {room.name}
               </h1>

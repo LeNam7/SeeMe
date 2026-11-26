@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { Users, BedDouble, Bath, Maximize2 } from 'lucide-react';
-import { addDays, formatVnd, getTodayVnDate } from '@/lib/dates';
+import { formatVnd } from '@/lib/dates';
 
 export interface HomeRoomCardItem {
   id: number;
@@ -20,8 +20,6 @@ export interface HomeRoomCardItem {
   baseWeekdayPrice: number;
   primaryImageUrl: string;
   primaryImageAlt: string;
-  isAvailableToday?: boolean;
-  todayStatus?: string;
   imgAttrs: {
     src: string;
     srcSet?: string;
@@ -31,64 +29,18 @@ export interface HomeRoomCardItem {
   };
 }
 
-interface AvailabilityRoom {
-  roomId: number;
-  slug: string;
-  name: string;
-  availableUnitsForStay: number;
-  dates: { date: string; price: number; status: string }[];
-}
-
 export function AvailabilityWidget({ rooms }: { rooms: HomeRoomCardItem[] }) {
-  const [availMap, setAvailMap] = useState<Map<number, AvailabilityRoom>>(new Map());
-
-  useEffect(() => {
-    const today = getTodayVnDate();
-    const tomorrow = addDays(today, 1);
-    let cancelled = false;
-    fetch(`/api/availability?checkIn=${today}&checkOut=${tomorrow}`, { cache: 'no-store' })
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (!cancelled && data?.rooms) {
-          setAvailMap(new Map((data.rooms as AvailabilityRoom[]).map((r) => [r.roomId, r])));
-        }
-      })
-      .catch(() => {
-        // Fallback silently on static preview
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
   return (
     <div id="dat-phong" className="scroll-mt-24">
       {/* Main 4 Room Showcase Cards */}
       <div className="grid md:grid-cols-2 gap-6 lg:gap-8">
         {rooms.map((room) => {
-          const av = availMap.get(room.id);
-          const isAvail = av
-            ? av.availableUnitsForStay > 0
-            : (room.isAvailableToday ?? true);
-          const cellStatus = av?.dates[0]?.status ?? room.todayStatus ?? 'AVAILABLE';
-          const statusLabel = isAvail
-            ? 'Còn trống'
-            : cellStatus === 'PENDING'
-              ? 'Đang giữ phòng'
-              : 'Kín hôm nay';
-          const statusStyle = isAvail
-            ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-            : cellStatus === 'PENDING'
-              ? 'bg-amber-50 text-amber-900 border-amber-200'
-              : 'bg-neutral-100 text-neutral-700 border-black/15';
           const bookingHref = `/rooms/${room.slug}`;
 
           return (
             <article
               key={room.id}
-              className={`seeme-card flex flex-col justify-between transition ${
-                !isAvail ? 'opacity-90' : ''
-              }`}
+              className="seeme-card flex flex-col justify-between transition"
             >
               <div>
                 <Link href={bookingHref} className="seeme-img-wrap aspect-[16/10] block">
@@ -105,20 +57,13 @@ export function AvailabilityWidget({ rooms }: { rooms: HomeRoomCardItem[] }) {
                 </Link>
 
                 <div className="p-6 space-y-3.5">
-                  {/* Row 1: Room Name + Live Status + Price */}
+                  {/* Row 1: Room Name + Price */}
                   <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0 flex flex-wrap items-center gap-2">
-                      <h3 className="font-display text-xl text-[#221f1c] font-extrabold leading-snug">
-                        <Link href={bookingHref} className="hover:text-[#8d3f28] transition-colors">
-                          {room.name}
-                        </Link>
-                      </h3>
-                      <span
-                        className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border whitespace-nowrap ${statusStyle}`}
-                      >
-                        {statusLabel}
-                      </span>
-                    </div>
+                    <h3 className="font-display text-xl text-[#221f1c] font-extrabold leading-snug min-w-0">
+                      <Link href={bookingHref} className="hover:text-[#8d3f28] transition-colors">
+                        {room.name}
+                      </Link>
+                    </h3>
 
                     <div className="text-right shrink-0 leading-tight">
                       <span className="font-extrabold text-lg text-[#8d3f28] tabular-nums">
