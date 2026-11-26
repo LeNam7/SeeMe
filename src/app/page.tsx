@@ -258,30 +258,7 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* SECTION 2B: Official Cinematic Brand Film */}
-        <SeemeFilmSection />
-
-        {/* SECTION 3: Gallery with Interactive Lightbox */}
-        <section className="section py-14 lg:py-20" id="bo-suu-tap" aria-labelledby="gal-h">
-          <div className="wrap space-y-8">
-            <div className="max-w-2xl space-y-2">
-              <span className="seeme-badge">Bộ sưu tập hình ảnh</span>
-              <h2
-                id="gal-h"
-                className="font-display text-2xl sm:text-3xl lg:text-[36px] font-extrabold text-[#221f1c] leading-snug tracking-tight"
-              >
-                Cao nguyên đá, nếp nhà trình tường và góc nghỉ bình yên
-              </h2>
-              <p className="text-sm text-[#47423c]">
-                Bấm vào từng ảnh để xem kích thước toàn màn hình. Toàn bộ ảnh được chụp thực tế tại
-                SEEME Homestay, thôn Lô Lô Chải.
-              </p>
-            </div>
-            <GalleryWithLightbox items={GALLERY_ITEMS} />
-          </div>
-        </section>
-
-        {/* SECTION 4: The Space — Non-uniform Architectural Showcase */}
+        {/* SECTION 3: The Space — Non-uniform Architectural Showcase */}
         <section
           className="section bg-[#ebe3d5] py-14 lg:py-20"
           id="khong-gian"
@@ -366,6 +343,33 @@ export default async function HomePage() {
                 </div>
               </div>
             </div>
+          </div>
+        </section>
+
+        {/* SECTION 3B: Official Cinematic Brand Film */}
+        <SeemeFilmSection />
+
+        {/* SECTION 4: Gallery with Interactive Lightbox */}
+        <section
+          className="section bg-[#ebe3d5] py-14 lg:py-20"
+          id="bo-suu-tap"
+          aria-labelledby="gal-h"
+        >
+          <div className="wrap space-y-8">
+            <div className="max-w-2xl space-y-2">
+              <span className="seeme-badge">Bộ sưu tập hình ảnh</span>
+              <h2
+                id="gal-h"
+                className="font-display text-2xl sm:text-3xl lg:text-[36px] font-extrabold text-[#221f1c] leading-snug tracking-tight"
+              >
+                Cao nguyên đá, nếp nhà trình tường và góc nghỉ bình yên
+              </h2>
+              <p className="text-sm text-[#47423c]">
+                Bấm vào từng ảnh để xem kích thước toàn màn hình. Toàn bộ ảnh được chụp thực tế tại
+                SEEME Homestay, thôn Lô Lô Chải.
+              </p>
+            </div>
+            <GalleryWithLightbox items={GALLERY_ITEMS} />
           </div>
         </section>
 
