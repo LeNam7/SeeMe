@@ -237,12 +237,12 @@ export function AdminMatrixCalendar({
                           setOverridePriceInput(String(cell.price));
                           setBlockNoteInput(cell.blockNote || 'Chủ nhà khóa phòng trực tiếp');
                         }}
-                        className={`w-full rounded-md border p-1.5 text-left transition ${
+                        className={`w-full min-h-[44px] rounded-md border px-2 py-2 flex flex-col items-center justify-center text-center transition ${
                           CELL_STYLES[cell.status]
                         }`}
                       >
-                        <div className="flex items-center justify-between gap-1">
-                          <span className="font-semibold text-[10px] truncate">
+                        <div className="flex items-center justify-center gap-1">
+                          <span className="font-bold text-xs truncate">
                             {cell.status === 'AVAILABLE'
                               ? 'Trống'
                               : cell.status === 'PENDING'
@@ -251,18 +251,12 @@ export function AdminMatrixCalendar({
                                   ? 'Hoàn tất'
                                   : 'Khóa'}
                           </span>
-                          {cell.ruleType === 'OVERRIDE' && (
-                            <span className="text-[9px] font-bold text-[#8d3f28]">★</span>
-                          )}
                           {cell.isHoliday && (
                             <span className="text-[9px] font-bold text-red-700">Lễ</span>
                           )}
                         </div>
-                        <div className="text-[11px] font-medium mt-0.5">
-                          {Math.round(cell.price / 1000)}k
-                        </div>
                         {cell.bookings[0] && (
-                          <div className="text-[9px] truncate mt-0.5 font-semibold">
+                          <div className="text-[10px] truncate max-w-full mt-0.5 font-semibold opacity-90">
                             {cell.bookings[0].customerName}
                           </div>
                         )}
@@ -279,7 +273,7 @@ export function AdminMatrixCalendar({
       {/* Cell Inspector Modal */}
       {selectedCell && (
         <div
-          className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center p-0 sm:p-4"
+          className="fixed inset-0 !mt-0 z-50 bg-black/50 flex items-end sm:items-center justify-center p-0 sm:p-4"
           role="dialog"
           aria-modal="true"
         >
