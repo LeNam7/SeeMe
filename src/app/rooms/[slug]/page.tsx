@@ -112,17 +112,19 @@ export default async function RoomDetailPage({
             </div>
             <div className="lg:text-right">
               <span className="text-xs uppercase tracking-wider text-[#5c5750] block">
-                Giá tham khảo ngày thường / cuối tuần
+                {room.baseWeekdayPrice === room.baseWeekendPrice
+                  ? 'Giá niêm yết chính thức'
+                  : 'Giá ngày thường / cuối tuần'}
               </span>
-              <div className="font-display text-2xl text-[#8d3f28]">
-                {formatVnd(room.baseWeekdayPrice)} – {formatVnd(room.baseWeekendPrice)}
-                <span className="text-sm text-[#5c5750] font-sans"> / đêm</span>
+              <div className="font-display text-2xl font-extrabold text-[#8d3f28]">
+                {room.baseWeekdayPrice === room.baseWeekendPrice
+                  ? formatVnd(room.baseWeekdayPrice)
+                  : `${formatVnd(room.baseWeekdayPrice)} – ${formatVnd(room.baseWeekendPrice)}`}
+                <span className="text-sm text-[#5c5750] font-sans font-normal"> / đêm</span>
               </div>
-              {!room.isPriceConfigured && (
-                <span className="text-[11px] text-[#5c5750]">
-                  (Mức giá tham chiếu mặc định — Admin có thể tùy chỉnh theo ngày/mùa)
-                </span>
-              )}
+              <span className="text-[11px] text-[#5c5750] block mt-0.5">
+                Phụ thu thêm người: +100.000 đ/người/đêm · Lễ/Tết: +200.000 đ/phòng/đêm
+              </span>
             </div>
           </div>
 
@@ -140,6 +142,11 @@ export default async function RoomDetailPage({
                     <strong>
                       Tiêu chuẩn {room.standardCapacity} khách (tối đa {room.maxCapacity})
                     </strong>
+                    {room.maxCapacity > room.standardCapacity && (
+                      <span className="text-[11px] text-[#5c5750] block mt-0.5">
+                        Thêm người phụ thu 100.000 đ / người / đêm
+                      </span>
+                    )}
                   </div>
                   <div className="p-3.5 rounded-lg bg-[#ebe3d5]/60 border border-black/10 text-sm">
                     <span className="text-xs text-[#5c5750] block">Diện tích ước lượng</span>

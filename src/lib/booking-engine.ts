@@ -235,6 +235,8 @@ export async function getAvailabilityForRange(
   };
 }
 
+export const EXTRA_GUEST_FEE_PER_NIGHT = 100_000;
+
 export async function calculateBookingQuote(params: {
   checkInDate: string;
   checkOutDate: string;
@@ -266,9 +268,10 @@ export async function calculateBookingQuote(params: {
   const allRooms = await db.select().from(schema.rooms).where(eq(schema.rooms.isActive, true));
   const roomMap = new Map(allRooms.map((r) => [r.id, r]));
 
-  let roomSubtotal = 0;
+  let baseRoomSubtotal = 0;
   let containsHoliday = false;
   let roomsCount = 0;
+  let totalStandardCapacity = 0;
   let totalMaxCapacity = 0;
   const itemsDetail = [];
 
@@ -295,8 +298,9 @@ export async function calculateBookingQuote(params: {
       settings.workflow.weekendDays
     );
     const subtotal = breakdown.unitSubtotal * sel.quantity;
-    roomSubtotal += subtotal;
+    baseRoomSubtotal += subtotal;
     roomsCount += sel.quantity;
+    totalStandardCapacity += room.standardCapacity * sel.quantity;
     totalMaxCapacity += room.maxCapacity * sel.quantity;
     if (breakdown.containsHoliday) containsHoliday = true;
 
@@ -318,6 +322,10 @@ export async function calculateBookingQuote(params: {
       'CAPACITY_EXCEEDED'
     );
   }
+
+  const extraGuestsCount = Math.max(0, guestsCount - totalStandardCapacity);
+  const extraGuestSubtotal = extraGuestsCount * EXTRA_GUEST_FEE_PER_NIGHT * nights.length;
+  const roomSubtotal = baseRoomSubtotal + extraGuestSubtotal;
 
   const allServices = await db
     .select()
@@ -365,6 +373,10 @@ export async function calculateBookingQuote(params: {
     guestsCount,
     roomsCount,
     isWholeHouse,
+    baseRoomSubtotal,
+    extraGuestsCount,
+    extraGuestFeePerNight: EXTRA_GUEST_FEE_PER_NIGHT,
+    extraGuestSubtotal,
     roomSubtotal,
     servicesSubtotal,
     totalAmount,
@@ -434,9 +446,10 @@ export async function createBookingTransaction(input: CreateBookingInput) {
         : [];
     const blocks = await tx.select().from(schema.availabilityBlocks);
 
-    let roomSubtotal = 0;
+    let baseRoomSubtotal = 0;
     let containsHoliday = false;
     let roomsCount = 0;
+    let totalStandardCapacity = 0;
     let totalMaxCapacity = 0;
     const itemInserts: Array<{
       roomId: number;
@@ -483,8 +496,9 @@ export async function createBookingTransaction(input: CreateBookingInput) {
         settings.workflow.weekendDays
       );
       const subtotal = breakdown.unitSubtotal * sel.quantity;
-      roomSubtotal += subtotal;
+      baseRoomSubtotal += subtotal;
       roomsCount += sel.quantity;
+      totalStandardCapacity += room.standardCapacity * sel.quantity;
       totalMaxCapacity += room.maxCapacity * sel.quantity;
       if (breakdown.containsHoliday) containsHoliday = true;
 
@@ -504,6 +518,10 @@ export async function createBookingTransaction(input: CreateBookingInput) {
         'CAPACITY_EXCEEDED'
       );
     }
+
+    const extraGuestsCount = Math.max(0, input.guestsCount - totalStandardCapacity);
+    const extraGuestSubtotal = extraGuestsCount * EXTRA_GUEST_FEE_PER_NIGHT * nights.length;
+    const roomSubtotal = baseRoomSubtotal + extraGuestSubtotal;
 
     const allServices = await tx
       .select()

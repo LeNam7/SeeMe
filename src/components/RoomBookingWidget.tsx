@@ -50,6 +50,10 @@ interface QuoteResult {
   roomsCount: number;
   isWholeHouse: boolean;
   roomSubtotal: number;
+  baseRoomSubtotal?: number;
+  extraGuestsCount?: number;
+  extraGuestFeePerNight?: number;
+  extraGuestSubtotal?: number;
   servicesSubtotal: number;
   totalAmount: number;
   items: {
@@ -401,7 +405,7 @@ export function RoomBookingWidget({
                       </span>
                     </div>
                     <p className="text-xs text-[#5c5750] mt-0.5">
-                      {r.subtitle} · Tham khảo {formatVnd(r.baseWeekdayPrice)}/đêm
+                      {r.subtitle} · {formatVnd(r.baseWeekdayPrice)}/đêm
                     </p>
                   </div>
 
@@ -699,6 +703,16 @@ export function RoomBookingWidget({
                   </div>
                 </div>
               ))}
+
+              {(quote.extraGuestsCount ?? 0) > 0 && (quote.extraGuestSubtotal ?? 0) > 0 && (
+                <div className="flex justify-between text-xs text-[#8d3f28] pt-1.5 border-t border-black/5">
+                  <span>
+                    Phụ thu thêm {quote.extraGuestsCount} khách ({quote.nightsCount} đêm ×{' '}
+                    {formatVnd(quote.extraGuestFeePerNight ?? 100_000)})
+                  </span>
+                  <span className="font-semibold">{formatVnd(quote.extraGuestSubtotal ?? 0)}</span>
+                </div>
+              )}
 
               {quote.services.length > 0 && (
                 <div className="pt-2 border-t border-black/5 space-y-1">

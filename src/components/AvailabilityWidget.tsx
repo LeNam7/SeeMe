@@ -69,7 +69,7 @@ export function AvailabilityWidget({ rooms }: { rooms: HomeRoomCardItem[] }) {
                       <span className="font-extrabold text-lg text-[#8d3f28] tabular-nums">
                         {formatVnd(room.baseWeekdayPrice)}
                       </span>
-                      <span className="text-xs text-[#5c5750] block mt-0.5">từ / đêm</span>
+                      <span className="text-xs text-[#5c5750] block mt-0.5">/ đêm</span>
                     </div>
                   </div>
 
@@ -78,7 +78,9 @@ export function AvailabilityWidget({ rooms }: { rooms: HomeRoomCardItem[] }) {
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-1 font-semibold text-[#221f1c]">
                       <span className="inline-flex items-center gap-1.5">
                         <Users className="w-3.5 h-3.5 text-[#8d3f28] shrink-0" />
-                        {room.standardCapacity} khách
+                        {room.maxCapacity > room.standardCapacity
+                          ? `${room.standardCapacity} khách (tối đa ${room.maxCapacity})`
+                          : `${room.standardCapacity} khách`}
                       </span>
                       <span className="inline-flex items-center gap-1.5">
                         <Bath className="w-3.5 h-3.5 text-[#8d3f28] shrink-0" />
@@ -130,6 +132,17 @@ export function AvailabilityWidget({ rooms }: { rooms: HomeRoomCardItem[] }) {
             </article>
           );
         })}
+      </div>
+
+      {/* Official Surcharge Note */}
+      <div className="mt-6 rounded-xl bg-[#ebe3d5]/70 border border-black/10 px-5 py-3.5 flex flex-wrap items-center justify-between gap-2 text-xs text-[#3c342e]">
+        <span>
+          <strong className="text-[#221f1c]">Phụ thu thêm người:</strong> 100.000 đ / người / đêm
+          (trong giới hạn sức chứa tối đa của phòng).
+        </span>
+        <span>
+          <strong className="text-[#221f1c]">Phụ thu Lễ / Tết:</strong> +200.000 đ / phòng / đêm.
+        </span>
       </div>
     </div>
   );
