@@ -158,7 +158,7 @@ const GH_DEMO_JS = `(() => {
   if (diningWrap) {
     const mTabs = Array.from(diningWrap.querySelectorAll('[data-menu-tab]'));
     const mPanels = Array.from(diningWrap.querySelectorAll('[data-menu-panel]'));
-    const noteEl = diningWrap.querySelector('.text-xs.font-semibold.text-\\[\\#8d3f28\\]');
+    const noteEl = diningWrap.querySelector('[data-menu-note]');
     const notes = {
       LAU: 'Nồi tối thiểu 2 người',
       BBQ: 'Chuẩn bị than hồng tại sân',

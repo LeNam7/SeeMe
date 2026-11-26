@@ -83,8 +83,8 @@ export function DiningMenuSection({
   const activeTabMeta = MENU_TABS.find((t) => t.id === activeTab) || MENU_TABS[0];
 
   return (
-    <div className="wrap grid lg:grid-cols-12 gap-8 lg:gap-10 items-start" data-dining-menu>
-      {/* Left Column: Story + Real 4-Photo Editorial Collage */}
+    <div className="wrap grid lg:grid-cols-12 gap-8 lg:gap-10 items-stretch" data-dining-menu>
+      {/* Left Column: Story + Real 4-Photo Editorial Collage (defines section height on desktop) */}
       <div className="lg:col-span-5 space-y-5">
         <span className="text-xs uppercase tracking-[0.18em] text-[#8d3f28] font-bold">
           Trải nghiệm ẩm thực & Dịch vụ tại SEEME
@@ -148,127 +148,134 @@ export function DiningMenuSection({
         </div>
       </div>
 
-      {/* Right Column: Official Tabbed Evening Menu Card */}
-      <div className="lg:col-span-7 bg-[#f6f1e7] rounded-2xl border border-black/10 p-5 sm:p-7 space-y-5">
-        <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-black/10">
-          <div>
-            <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#8d3f28]">
-              Thực đơn tối chính thức
-            </span>
-            <h3 className="font-display text-xl sm:text-2xl font-extrabold text-[#221f1c] mt-0.5">
-              Menu SEEME Homestay
-            </h3>
-          </div>
-          <button
-            type="button"
-            onClick={() =>
-              setLightbox({
-                src: '/assets/img/seeme/food-menu-official.jpg',
-                alt: 'Ảnh thực đơn tối chính thức SEEME Homestay (Lẩu, BBQ, Món phụ & Đồ uống)',
-              })
-            }
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-[#8d3f28] bg-white hover:bg-[#faf7f1] border border-[#8d3f28]/25 px-3 py-2 rounded-lg transition"
-          >
-            <FileText className="w-3.5 h-3.5" />
-            Xem ảnh menu gốc
-          </button>
-        </div>
-
-        {/* Category Tabs */}
-        <div className="flex flex-wrap gap-2" role="tablist" aria-label="Nhóm thực đơn SEEME">
-          {MENU_TABS.map((tab) => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.id;
-            const count = grouped[tab.id].length;
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                role="tab"
-                data-menu-tab={tab.id}
-                aria-selected={isActive}
-                onClick={() => setActiveTab(tab.id)}
-                className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold transition border ${
-                  isActive
-                    ? 'bg-[#221f1c] text-[#f6f1e7] border-[#221f1c]'
-                    : 'bg-white text-[#221f1c] border-black/15 hover:border-black/35'
-                }`}
-              >
-                <Icon className="w-3.5 h-3.5" />
-                <span>{tab.label}</span>
-                <span
-                  className={`text-[11px] px-1.5 py-0.5 rounded-full ${
-                    isActive ? 'bg-white/15 text-[#f6f1e7]' : 'bg-[#ebe3d5] text-[#5c5750]'
-                  }`}
-                >
-                  {count}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Tab note */}
-        {activeTabMeta.note && (
-          <div className="text-xs font-semibold text-[#8d3f28] bg-[#ebe3d5]/70 px-3.5 py-2 rounded-lg inline-block">
-            {activeTabMeta.note}
-          </div>
-        )}
-
-        {/* Menu List Panels (all rendered with hidden toggle so static GH Pages script can switch effortlessly too) */}
-        {MENU_TABS.map((tab) => {
-          const items = grouped[tab.id];
-          const isVisible = activeTab === tab.id;
-          return (
-            <ul
-              key={tab.id}
-              data-menu-panel={tab.id}
-              className={`divide-y divide-black/10 ${isVisible ? 'block' : 'hidden'}`}
-            >
-              {items.map((svc) => (
-                <li
-                  key={svc.id}
-                  className="py-3.5 first:pt-1 last:pb-1 flex items-start justify-between gap-4"
-                >
-                  <div className="min-w-0 space-y-0.5">
-                    <h4 className="font-display text-base font-bold text-[#221f1c]">{svc.name}</h4>
-                    <p className="text-xs sm:text-sm text-[#47423c] leading-relaxed">
-                      {svc.description}
-                    </p>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <span className="font-extrabold text-[#8d3f28] text-sm sm:text-base tabular-nums block">
-                      {formatVnd(svc.price)}
-                    </span>
-                    <span className="text-xs text-[#5c5750]">/{svc.unit}</span>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          );
-        })}
-
-        {/* Shan Tuyet Tea Highlight + Booking CTA */}
-        <div className="pt-4 border-t border-black/10 space-y-3">
-          <div className="p-3.5 rounded-xl bg-white border border-black/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
-            <div className="space-y-0.5">
-              <strong className="text-[#221f1c] text-sm block">
-                Quầy Trà sữa Shan Tuyết — Si mê vị trà cổ
-              </strong>
-              <span className="text-[#5c5750]">
-                Phục vụ ngay tại cổng SEEME Homestay · Nhận đặt trước bữa tối qua mục đặt phòng hoặc
-                Hotline <strong className="text-[#221f1c]">{hotline}</strong>.
+      {/* Right Column: Official Tabbed Evening Menu Card (exact height match with left column on desktop; middle list scrolls) */}
+      <div className="lg:col-span-7 lg:relative">
+        <div className="lg:absolute lg:inset-0 bg-[#f6f1e7] rounded-2xl border border-black/10 p-5 sm:p-7 flex flex-col gap-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-black/10 shrink-0">
+            <div>
+              <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#8d3f28]">
+                Thực đơn tối chính thức
               </span>
+              <h3 className="font-display text-xl sm:text-2xl font-extrabold text-[#221f1c] mt-0.5">
+                Menu SEEME Homestay
+              </h3>
             </div>
+            <button
+              type="button"
+              onClick={() =>
+                setLightbox({
+                  src: '/assets/img/seeme/food-menu-official.jpg',
+                  alt: 'Ảnh thực đơn tối chính thức SEEME Homestay (Lẩu, BBQ, Món phụ & Đồ uống)',
+                })
+              }
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-[#8d3f28] bg-white hover:bg-[#faf7f1] border border-[#8d3f28]/25 px-3 py-2 rounded-lg transition"
+            >
+              <FileText className="w-3.5 h-3.5" />
+              Xem ảnh menu gốc
+            </button>
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <span className="text-xs text-[#5c5750]">
-              Chi phí món ăn được cộng minh bạch ngay khi bạn đặt phòng & chọn thực đơn trước.
-            </span>
-            <Link href="/book" className="btn btn--primary text-sm">
-              Đặt phòng kèm bữa tối
-            </Link>
+          {/* Category Tabs */}
+          <div className="flex flex-wrap items-center justify-between gap-2 shrink-0">
+            <div className="flex flex-wrap gap-2" role="tablist" aria-label="Nhóm thực đơn SEEME">
+              {MENU_TABS.map((tab) => {
+                const Icon = tab.icon;
+                const isActive = activeTab === tab.id;
+                const count = grouped[tab.id].length;
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    role="tab"
+                    data-menu-tab={tab.id}
+                    aria-selected={isActive}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold transition border ${
+                      isActive
+                        ? 'bg-[#221f1c] text-[#f6f1e7] border-[#221f1c]'
+                        : 'bg-white text-[#221f1c] border-black/15 hover:border-black/35'
+                    }`}
+                  >
+                    <Icon className="w-3.5 h-3.5" />
+                    <span>{tab.label}</span>
+                    <span
+                      className={`text-[11px] px-1.5 py-0.5 rounded-full ${
+                        isActive ? 'bg-white/15 text-[#f6f1e7]' : 'bg-[#ebe3d5] text-[#5c5750]'
+                      }`}
+                    >
+                      {count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+            {activeTabMeta.note && (
+              <span
+                data-menu-note
+                className="text-xs font-semibold text-[#8d3f28] bg-[#ebe3d5]/70 px-3 py-1.5 rounded-lg"
+              >
+                {activeTabMeta.note}
+              </span>
+            )}
+          </div>
+
+          {/* Scrollable Middle Menu List */}
+          <div className="flex-1 min-h-0 max-h-[380px] lg:max-h-none overflow-y-auto pr-2 seeme-menu-scroll">
+            {MENU_TABS.map((tab) => {
+              const items = grouped[tab.id];
+              const isVisible = activeTab === tab.id;
+              return (
+                <ul
+                  key={tab.id}
+                  data-menu-panel={tab.id}
+                  className={`divide-y divide-black/10 ${isVisible ? 'block' : 'hidden'}`}
+                >
+                  {items.map((svc) => (
+                    <li
+                      key={svc.id}
+                      className="py-3 first:pt-0.5 last:pb-1 flex items-start justify-between gap-4"
+                    >
+                      <div className="min-w-0 space-y-0.5">
+                        <h4 className="font-display text-base font-bold text-[#221f1c]">{svc.name}</h4>
+                        <p className="text-xs sm:text-sm text-[#47423c] leading-relaxed">
+                          {svc.description}
+                        </p>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <span className="font-extrabold text-[#8d3f28] text-sm sm:text-base tabular-nums block">
+                          {formatVnd(svc.price)}
+                        </span>
+                        <span className="text-xs text-[#5c5750]">/{svc.unit}</span>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              );
+            })}
+          </div>
+
+          {/* Shan Tuyet Tea Highlight + Booking CTA */}
+          <div className="pt-3.5 border-t border-black/10 space-y-3 shrink-0">
+            <div className="p-3.5 rounded-xl bg-white border border-black/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+              <div className="space-y-0.5">
+                <strong className="text-[#221f1c] text-sm block">
+                  Quầy Trà sữa Shan Tuyết — Si mê vị trà cổ
+                </strong>
+                <span className="text-[#5c5750]">
+                  Phục vụ ngay tại cổng SEEME Homestay · Nhận đặt trước bữa tối qua mục đặt phòng hoặc
+                  Hotline <strong className="text-[#221f1c]">{hotline}</strong>.
+                </span>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <span className="text-xs text-[#5c5750]">
+                Chi phí món ăn được cộng minh bạch ngay khi bạn đặt phòng & chọn thực đơn trước.
+              </span>
+              <Link href="/book" className="btn btn--primary text-sm">
+                Đặt phòng kèm bữa tối
+              </Link>
+            </div>
           </div>
         </div>
       </div>
