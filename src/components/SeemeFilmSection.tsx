@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Play, Volume2, Maximize2 } from 'lucide-react';
 
 interface FilmChapter {
@@ -33,12 +33,51 @@ const FILM_CHAPTERS: FilmChapter[] = [
 
 export function SeemeFilmSection() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const autoPausedByScrollRef = useRef(false);
   const [hasStarted, setHasStarted] = useState(false);
   const [activeChapter, setActiveChapter] = useState<number>(0);
+
+  useEffect(() => {
+    const vid = videoRef.current;
+    if (!vid || typeof IntersectionObserver === 'undefined') return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (!entry) return;
+        const isFullscreen =
+          document.fullscreenElement === vid ||
+          (document as Document & { webkitFullscreenElement?: Element | null })
+            .webkitFullscreenElement === vid;
+        if (isFullscreen) return;
+
+        if (!entry.isIntersecting || entry.intersectionRatio < 0.25) {
+          if (!vid.paused && !vid.ended) {
+            autoPausedByScrollRef.current = true;
+            vid.pause();
+          }
+        } else if (entry.intersectionRatio >= 0.35 && autoPausedByScrollRef.current && !vid.ended) {
+          autoPausedByScrollRef.current = false;
+          const p = vid.play();
+          if (p && typeof p.catch === 'function') {
+            p.catch(() => {
+              vid.muted = true;
+              vid.play().catch(() => {});
+            });
+          }
+        }
+      },
+      { threshold: [0, 0.25, 0.35, 0.5] }
+    );
+
+    observer.observe(vid);
+    return () => observer.disconnect();
+  }, []);
 
   function playFrom(seconds?: number) {
     const vid = videoRef.current;
     if (!vid) return;
+    autoPausedByScrollRef.current = false;
     if (typeof seconds === 'number') {
       vid.currentTime = seconds;
     }
@@ -133,7 +172,10 @@ export function SeemeFilmSection() {
               controls={hasStarted}
               playsInline
               preload="metadata"
-              onPlay={() => setHasStarted(true)}
+              onPlay={() => {
+                autoPausedByScrollRef.current = false;
+                setHasStarted(true);
+              }}
               onTimeUpdate={handleTimeUpdate}
               data-film-video
               className={`w-full h-full block ${

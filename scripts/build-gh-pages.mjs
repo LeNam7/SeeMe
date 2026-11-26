@@ -103,15 +103,18 @@ const GH_DEMO_JS = `(() => {
     });
   }
 
-  // Official SEEME Cinema Film play overlay + chapters + fullscreen
+  // Official SEEME Cinema Film play overlay + chapters + fullscreen + scroll auto-pause/resume
   const filmWrap = document.querySelector('[data-seeme-film]');
   if (filmWrap) {
     const vid = filmWrap.querySelector('[data-film-video]');
     const overlay = filmWrap.querySelector('[data-film-overlay]');
     const fsBtn = filmWrap.querySelector('[data-film-fullscreen]');
     const chapBtns = Array.from(filmWrap.querySelectorAll('[data-film-chapter]'));
+    let autoPausedByScroll = false;
+
     const startFilm = (sec) => {
       if (!vid) return;
+      autoPausedByScroll = false;
       if (typeof sec === 'number') vid.currentTime = sec;
       vid.controls = true;
       vid.classList.remove('object-cover');
@@ -120,6 +123,27 @@ const GH_DEMO_JS = `(() => {
       const p = vid.play();
       if (p && p.catch) p.catch(() => { vid.muted = true; vid.play().catch(() => {}); });
     };
+    if (vid) {
+      vid.addEventListener('play', () => { autoPausedByScroll = false; });
+      if (typeof IntersectionObserver !== 'undefined') {
+        const io = new IntersectionObserver((entries) => {
+          const entry = entries[0];
+          if (!entry) return;
+          if (document.fullscreenElement === vid || document.webkitFullscreenElement === vid) return;
+          if (!entry.isIntersecting || entry.intersectionRatio < 0.25) {
+            if (!vid.paused && !vid.ended) {
+              autoPausedByScroll = true;
+              vid.pause();
+            }
+          } else if (entry.intersectionRatio >= 0.35 && autoPausedByScroll && !vid.ended) {
+            autoPausedByScroll = false;
+            const p = vid.play();
+            if (p && p.catch) p.catch(() => { vid.muted = true; vid.play().catch(() => {}); });
+          }
+        }, { threshold: [0, 0.25, 0.35, 0.5] });
+        io.observe(vid);
+      }
+    }
     if (overlay) overlay.addEventListener('click', () => startFilm(0));
     chapBtns.forEach((b) => {
       b.addEventListener('click', () => startFilm(Number(b.getAttribute('data-film-chapter') || 0)));
