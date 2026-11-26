@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Calendar, ArrowRight, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Calendar, ArrowRight, AlertCircle, CheckCircle2, Users, BedDouble, Bath, Maximize2 } from 'lucide-react';
 import { addDays, formatDateVi, formatVnd, getTodayVnDate } from '@/lib/dates';
 import { GuestStepperInput } from '@/components/GuestStepperInput';
 import { DateRangePicker } from '@/components/DateRangePicker';
@@ -15,6 +15,7 @@ export interface HomeRoomCardItem {
   description: string;
   standardCapacity: number;
   maxCapacity: number;
+  sizeSqm?: number | null;
   bathroomType: string;
   bedConfig: string;
   amenities: string[];
@@ -235,21 +236,18 @@ export function AvailabilityWidget({ rooms }: { rooms: HomeRoomCardItem[] }) {
                   />
                 </Link>
 
-                <div className="p-6 space-y-4">
+                <div className="p-6 space-y-3.5">
+                  {/* Row 1: Room Name + Live Status + Price */}
                   <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <h3 className="font-display text-xl text-[#221f1c] font-bold">
-                        <Link href={bookingHref} className="hover:text-[#8d3f28]">
+                    <div className="min-w-0 flex flex-wrap items-center gap-2">
+                      <h3 className="font-display text-xl text-[#221f1c] font-extrabold leading-snug">
+                        <Link href={bookingHref} className="hover:text-[#8d3f28] transition-colors">
                           {room.name}
                         </Link>
                       </h3>
-                      <p className="text-xs font-medium text-[#8d3f28] mt-1">{room.subtitle}</p>
-                    </div>
-
-                    <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
                       {hasLiveStatus && (
                         <span
-                          className={`text-xs font-semibold px-2.5 py-1 rounded-full border whitespace-nowrap ${
+                          className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border whitespace-nowrap ${
                             isAvail
                               ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
                               : 'bg-neutral-100 text-neutral-600 border-black/15'
@@ -258,45 +256,56 @@ export function AvailabilityWidget({ rooms }: { rooms: HomeRoomCardItem[] }) {
                           {isAvail ? 'Còn trống' : 'Kín lịch'}
                         </span>
                       )}
-                      <div className="text-right">
-                        <span className="text-[11px] uppercase tracking-wider text-[#5c5750] block">
-                          Từ
-                        </span>
-                        <span className="font-semibold text-base text-[#221f1c] tabular-nums">
-                          {formatVnd(room.baseWeekdayPrice)}
-                        </span>
-                        <span className="text-xs text-[#5c5750] block">/đêm</span>
-                      </div>
+                    </div>
+
+                    <div className="text-right shrink-0 leading-tight">
+                      <span className="font-extrabold text-lg text-[#8d3f28] tabular-nums">
+                        {formatVnd(room.baseWeekdayPrice)}
+                      </span>
+                      <span className="text-xs text-[#5c5750] block mt-0.5">từ / đêm</span>
                     </div>
                   </div>
 
-                  <p className="text-sm text-[#3c342e] leading-relaxed">{room.description}</p>
-
-                  <div className="grid grid-cols-2 gap-2 text-xs text-[#3c342e] pt-2 border-t border-black/10">
-                    <div>
-                      <strong className="text-[#221f1c]">Sức chứa:</strong> Tiêu chuẩn{' '}
-                      {room.standardCapacity} người
+                  {/* Row 2: Scannable Icon Facts (Capacity · Bathroom · Area + Bed) */}
+                  <div className="space-y-1.5 text-xs text-[#3c342e] pt-2.5 border-t border-black/10">
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 font-semibold text-[#221f1c]">
+                      <span className="inline-flex items-center gap-1.5">
+                        <Users className="w-3.5 h-3.5 text-[#8d3f28] shrink-0" />
+                        {room.standardCapacity} khách
+                      </span>
+                      <span className="inline-flex items-center gap-1.5">
+                        <Bath className="w-3.5 h-3.5 text-[#8d3f28] shrink-0" />
+                        {room.bathroomType}
+                      </span>
+                      {room.sizeSqm && (
+                        <span className="inline-flex items-center gap-1.5">
+                          <Maximize2 className="w-3.5 h-3.5 text-[#8d3f28] shrink-0" />
+                          {room.sizeSqm} m²
+                        </span>
+                      )}
                     </div>
-                    <div>
-                      <strong className="text-[#221f1c]">Phòng tắm:</strong> {room.bathroomType}
-                    </div>
-                    <div className="col-span-2">
-                      <strong className="text-[#221f1c]">Giường:</strong> {room.bedConfig}
+                    <div className="flex items-start gap-1.5 text-[#47423c]">
+                      <BedDouble className="w-3.5 h-3.5 text-[#8d3f28] shrink-0 mt-0.5" />
+                      <span>{room.bedConfig}</span>
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap gap-1.5 pt-1">
-                    {room.amenities.slice(0, 6).map((am) => (
-                      <span
-                        key={am}
-                        className="text-[11px] px-2 py-0.5 rounded bg-[#ebe3d5] text-[#3c342e]"
-                      >
+                  {/* Row 3: Concise 2-line editorial summary */}
+                  <p className="text-sm text-[#47423c] leading-relaxed line-clamp-2">
+                    {room.description}
+                  </p>
+
+                  {/* Row 4: Quiet 3-feature highlights (replaces 7 noisy gray boxes) */}
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#5c5750] pt-0.5">
+                    {room.amenities.slice(0, 3).map((am) => (
+                      <span key={am} className="inline-flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#8d3f28]/60 shrink-0" />
                         {am}
                       </span>
                     ))}
-                    {room.amenities.length > 6 && (
-                      <span className="text-[11px] px-2 py-0.5 rounded bg-[#faf7f1] text-[#5c5750]">
-                        +{room.amenities.length - 6} tiện nghi khác
+                    {room.amenities.length > 3 && (
+                      <span className="text-[#8d3f28] font-semibold">
+                        +{room.amenities.length - 3} tiện nghi
                       </span>
                     )}
                   </div>
