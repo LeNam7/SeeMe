@@ -20,6 +20,8 @@ export interface HomeRoomCardItem {
   baseWeekdayPrice: number;
   primaryImageUrl: string;
   primaryImageAlt: string;
+  isAvailableToday?: boolean;
+  todayStatus?: string;
   imgAttrs: {
     src: string;
     srcSet?: string;
@@ -65,15 +67,27 @@ export function AvailabilityWidget({ rooms }: { rooms: HomeRoomCardItem[] }) {
       <div className="grid md:grid-cols-2 gap-6 lg:gap-8">
         {rooms.map((room) => {
           const av = availMap.get(room.id);
-          const hasLiveStatus = Boolean(av);
-          const isAvail = av ? av.availableUnitsForStay > 0 : true;
+          const isAvail = av
+            ? av.availableUnitsForStay > 0
+            : (room.isAvailableToday ?? true);
+          const cellStatus = av?.dates[0]?.status ?? room.todayStatus ?? 'AVAILABLE';
+          const statusLabel = isAvail
+            ? 'Còn trống'
+            : cellStatus === 'PENDING'
+              ? 'Đang giữ phòng'
+              : 'Kín hôm nay';
+          const statusStyle = isAvail
+            ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+            : cellStatus === 'PENDING'
+              ? 'bg-amber-50 text-amber-900 border-amber-200'
+              : 'bg-neutral-100 text-neutral-700 border-black/15';
           const bookingHref = `/rooms/${room.slug}`;
 
           return (
             <article
               key={room.id}
               className={`seeme-card flex flex-col justify-between transition ${
-                hasLiveStatus && !isAvail ? 'opacity-85' : ''
+                !isAvail ? 'opacity-90' : ''
               }`}
             >
               <div>
@@ -99,17 +113,11 @@ export function AvailabilityWidget({ rooms }: { rooms: HomeRoomCardItem[] }) {
                           {room.name}
                         </Link>
                       </h3>
-                      {hasLiveStatus && (
-                        <span
-                          className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border whitespace-nowrap ${
-                            isAvail
-                              ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                              : 'bg-neutral-100 text-neutral-600 border-black/15'
-                          }`}
-                        >
-                          {isAvail ? 'Còn trống' : 'Kín hôm nay'}
-                        </span>
-                      )}
+                      <span
+                        className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border whitespace-nowrap ${statusStyle}`}
+                      >
+                        {statusLabel}
+                      </span>
                     </div>
 
                     <div className="text-right shrink-0 leading-tight">

@@ -3,7 +3,8 @@ import Link from 'next/link';
 import { asc, eq, inArray } from 'drizzle-orm';
 import { db, schema } from '@/db';
 import { ensureSeeded } from '@/db/seed';
-import { formatVnd } from '@/lib/dates';
+import { getAvailabilityForRange } from '@/lib/booking-engine';
+import { addDays, getTodayVnDate } from '@/lib/dates';
 import { getAllSiteSettings } from '@/lib/settings';
 import { PublicHeader } from '@/components/PublicHeader';
 import { PublicFooter } from '@/components/PublicFooter';
@@ -130,14 +131,24 @@ export default async function HomePage() {
     .where(eq(schema.reviews.isPublished, true))
     .orderBy(asc(schema.reviews.sortOrder));
 
+  const today = getTodayVnDate();
+  const tomorrow = addDays(today, 1);
+  const todayAvail = await getAvailabilityForRange(today, tomorrow);
+  const todayAvailMap = new Map(todayAvail.rooms.map((r) => [r.roomId, r]));
+
   const roomsWithPrimary = roomRows.map((room) => {
     const imgs = imgRows.filter((im) => im.roomId === room.id);
     const primary = imgs.find((im) => im.isPrimary) || imgs[0];
     const primaryImageUrl = primary?.url || '/assets/img/seeme/hoa-le-bed-1.jpg';
+    const av = todayAvailMap.get(room.id);
+    const todayCellStatus = av?.dates[0]?.status || 'AVAILABLE';
+    const isAvailableToday = av ? av.availableUnitsForStay > 0 : true;
     return {
       ...room,
       primaryImageUrl,
       primaryImageAlt: primary?.altText || `Ảnh thực tế ${room.name}`,
+      isAvailableToday,
+      todayStatus: todayCellStatus,
       imgAttrs: getResponsiveImageAttrs(primaryImageUrl, '(max-width: 767px) 100vw, 45vw'),
     };
   });
